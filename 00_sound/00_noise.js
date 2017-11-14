@@ -1,5 +1,21 @@
 "use strict";
 
+var audioContext = new AudioContext();
+
+var bufferSize = 1024; // 256, 512, 1024, 2048, 4096, 8192, 16384
+var channelCount = 1;
+
+var node = audioContext.createScriptProcessor(bufferSize, 0, channelCount);
+node.onaudioprocess = function(event) {
+	var data = event.outputBuffer.getChannelData(0);
+	for (var sample = 0; sample < data.length; sample++) {
+		data[sample] = Math.random() * 2.0 - 1.0;
+	}
+}
+
+node.connect(audioContext.destination);
+
+
 var canvas = document.getElementById("canvas");
 var context = canvas.getContext("2d");
 
