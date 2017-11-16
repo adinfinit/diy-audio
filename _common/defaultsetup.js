@@ -2,9 +2,10 @@ function defaultsetup(process, draw) {
 	var audioContext = new AudioContext();
 	var node = audioContext.createScriptProcessor(1024, 0, 1);
 
+	console.log(audioContext.sampleRate);
 	node.onaudioprocess = function(event) {
 		var data = event.outputBuffer.getChannelData(0);
-		process(data, event, audioContext);
+		process(data, event, audioContext.sampleRate);
 		record(data);
 	};
 

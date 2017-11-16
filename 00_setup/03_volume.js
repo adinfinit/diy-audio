@@ -22,7 +22,7 @@ function process(data, event) {
 	var gain = DecibelsToGain(control.decibel);
 	for (var sample = 0; sample < data.length; sample++) {
 		data[sample] = random() * 2 - 1;
-		data[sample] *= gain * 0.5;
+		data[sample] *= gain;
 
 		// data[sample] += sin(phase += 0.0005) * 0.4;
 	}

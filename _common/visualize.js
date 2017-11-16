@@ -85,13 +85,13 @@ function visualize(analyser, draw) {
 
 	var mouse = V(screen.x / 2, screen.y / 2);
 	mouse.released = false;
-	window.onmouseup = function() {
+	window.addEventListener("mouseup", function() {
 		mouse.released = true;
-	};
-	window.onmousemove = function(e) {
+	});
+	window.addEventListener("mousemove", function(e) {
 		mouse.x = e.pageX;
 		mouse.y = e.pageY;
-	};
+	});
 
 	function mousePointsAt(x0, y0, x1, y1) {
 		return x0 <= mouse.x && mouse.x <= x1 &&
@@ -356,6 +356,7 @@ function visualize(analyser, draw) {
 
 			context.restore();
 		}
+		mouse.released = false;
 
 		if (draw) {
 			context.save();
@@ -368,8 +369,6 @@ function visualize(analyser, draw) {
 				context.restore();
 			}
 		}
-
-		mouse.released = false;
 	}
 
 	// setup timing loop
