@@ -60,8 +60,8 @@ function visualize(analyser, draw) {
 				var summaryHead = recordingHead >> summaryBlockShift;
 				summaryMin[summaryHead] = minimum;
 				summaryMax[summaryHead] = maximum;
-				minimum = 0;
-				maximum = 0;
+				minimum = value;
+				maximum = value;
 			}
 
 			recordingHead++;
