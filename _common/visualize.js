@@ -2,7 +2,7 @@ var record = function() {};
 
 function visualize(analyser, draw) {
 	const HEADER_SIZE = 30;
-	const RECORDING_SECONDS = 10;
+	const RECORDING_SECONDS = 4;
 
 	var canvas = document.getElementById("canvas");
 	var context = canvas.getContext("2d");
@@ -30,7 +30,7 @@ function visualize(analyser, draw) {
 	var summaryBlockShift = 10;
 	var summaryHeadMask = (1 << summaryBlockShift) - 1;
 	var recording = new Float32Array(recordingSize);
-	var recordingHead = sampleRate;
+	var recordingHead = sampleRate / 2;
 
 	var minimum = 0;
 	var maximum = 0;

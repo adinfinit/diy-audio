@@ -17,6 +17,7 @@ var channelCount = 1;
 
 // create an audio node that fills audio buffers
 var node = audioContext.createScriptProcessor(bufferSize, 0, channelCount);
+
 // define the buffer filling function
 node.onaudioprocess = function(event) {
 	var data = event.outputBuffer.getChannelData(0);
