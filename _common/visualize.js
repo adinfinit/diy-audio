@@ -1,5 +1,8 @@
+var record = function() {};
+
 function visualize(analyser, draw) {
 	const HEADER_SIZE = 30;
+	const RECORDING_SECONDS = 10;
 
 	var canvas = document.getElementById("canvas");
 	var context = canvas.getContext("2d");
@@ -8,6 +11,7 @@ function visualize(analyser, draw) {
 
 	var currentTime = analyser.context.currentTime;
 	var sampleRate = analyser.context.sampleRate;
+
 	var frequencyData = new Uint8Array(analyser.frequencyBinCount);
 	var sampleData = new Uint8Array(analyser.frequencyBinCount);
 
@@ -20,6 +24,52 @@ function visualize(analyser, draw) {
 		analyser.getByteFrequencyData(frequencyData);
 		analyser.getByteTimeDomainData(sampleData);
 	}
+
+	// RECORDER
+	var recordingSize = sampleRate * RECORDING_SECONDS;
+	var summaryBlockShift = 10;
+	var summaryHeadMask = (1 << summaryBlockShift) - 1;
+	var recording = new Float32Array(recordingSize);
+	var recordingHead = sampleRate;
+
+	var minimum = 0;
+	var maximum = 0;
+
+	var previewRecording = 0;
+
+	var summarySize = recordingSize >> summaryBlockShift;
+	var summaryMin = new Float32Array(summarySize);
+	var summaryMax = new Float32Array(summarySize);
+
+	for (var i = 0; i < summaryMin.length; i++) {
+		summaryMin[i] = 0;
+		summaryMax[i] = 0;
+	}
+
+	record = function(data) {
+		if (PAUSED) return;
+
+		for (var i = 0; i < data.length; i++) {
+			var value = data[i];
+
+			recording[recordingHead] = value;
+			if (value < minimum) minimum = value;
+			if (value > maximum) maximum = value;
+
+			if ((recordingHead & summaryHeadMask) == 0) {
+				var summaryHead = recordingHead >> summaryBlockShift;
+				summaryMin[summaryHead] = minimum;
+				summaryMax[summaryHead] = maximum;
+				minimum = 0;
+				maximum = 0;
+			}
+
+			recordingHead++;
+			if (recordingHead >= recordingSize) {
+				recordingHead = 0;
+			}
+		}
+	};
 
 	// set canvas size to the correct size
 	var screen = V(0, 0);
@@ -48,17 +98,86 @@ function visualize(analyser, draw) {
 			y0 <= mouse.y && mouse.y <= y1;
 	}
 
-	function oscilloscope(context, data, x0, y0, x1, y1) {
-		var scaleX = (x1 - x0) / data.length;
-		var scaleY = (y1 - y0) / 255.0;
-		var centerY = y0 + scaleY;
-
+	function frame(x0, y0, x1, y1) {
 		context.fillStyle = "#eee";
 		context.strokeStyle = "#333";
 		context.beginPath();
 		context.rect(x0, y0, x1 - x0, y1 - y0);
 		context.fill();
 		context.stroke();
+	}
+
+	function draw_recording(context, min, max, x0, y0, x1, y1) {
+		frame(x0, y0, x1, y1);
+
+		if (mousePointsAt(x0, y0, x1, y1)) {
+			previewRecording = ((mouse.x - x0) * recordingSize / (x1 - x0)) | 0;
+		}
+
+		var scaleX = (x1 - x0) / min.length;
+		var scaleY = (y1 - y0) / 2.0;
+		var centerY = y0 + scaleY;
+		context.beginPath();
+		context.moveTo(x0, centerY + min[0] * scaleY);
+		for (var i = 1; i < min.length; i++) {
+			context.lineTo(x0 + scaleX * i, centerY + min[i] * scaleY);
+		}
+		for (var i = max.length - 1; i >= 0; i--) {
+			context.lineTo(x0 + scaleX * i, centerY + max[i] * scaleY);
+		}
+		context.fillStyle = "#000";
+		context.fill();
+
+		{
+			context.beginPath();
+			var summaryHead = recordingHead >> summaryBlockShift;
+			var x = x0 + scaleX * summaryHead;
+			context.moveTo(x, y0);
+			context.lineTo(x, y1);
+			context.strokeStyle = "#f00";
+			context.stroke();;
+
+			context.beginPath();
+			var previewHead = (previewRecording / recordingSize) * summarySize;
+			var x = x0 + scaleX * previewHead;
+			context.moveTo(x, y0);
+			context.lineTo(x, y1);
+			context.strokeStyle = "#00f";
+			context.stroke();;
+		}
+	}
+
+	function draw_preview(context, x0, y0, x1, y1) {
+		frame(x0, y0, x1, y1);
+
+		var previewWidth = 1 << summaryBlockShift;
+
+		var scaleX = (x1 - x0) / previewWidth;
+		var scaleY = (y1 - y0) / 2.0;
+		var centerY = y0 + scaleY;
+
+		var previewHead = previewRecording - previewWidth / 2;
+		if (previewHead < 0) {
+			previewHead += recordingSize;
+		}
+
+		context.beginPath();
+		context.moveTo(x0, centerY + scaleY * recording[previewHead]);
+		for (var i = 1; i < previewWidth; i++) {
+			previewHead++;
+			if (previewHead >= recordingSize) previewHead = 0;
+			context.lineTo(x0 + i * scaleX, centerY + scaleY * recording[previewHead]);
+		}
+
+		context.strokeStyle = "#000";
+		context.stroke();
+	}
+
+	function draw_oscilloscope(context, data, x0, y0, x1, y1) {
+		frame(x0, y0, x1, y1);
+
+		var scaleX = (x1 - x0) / data.length;
+		var scaleY = (y1 - y0) / 255.0;
 
 		context.beginPath();
 		for (var k = 16; k <= 255 - 16; k += 16) {
@@ -70,29 +189,21 @@ function visualize(analyser, draw) {
 		context.stroke();
 
 		context.beginPath();
-		context.moveTo(x0, data[0] * scaleY + centerY);
+		context.moveTo(x0, y0 + data[0] * scaleY);
 		for (var i = 1; i < data.length; i++) {
 			var x = x0 + scaleX * i;
-			var y = centerY + scaleY * data[i];
+			var y = y0 + scaleY * data[i];
 			context.lineTo(x, y);
 		}
 		context.strokeStyle = "#000";
 		context.stroke();
 	}
 
-	function frequency(context, data, x0, y0, x1, y1) {
+	function draw_frequency(context, data, x0, y0, x1, y1) {
+		frame(x0, y0, x1, y1);
+
 		var scaleX = (x1 - x0) / data.length;
 		var scaleY = (y1 - y0) / 256.0;
-
-		context.fillStyle = "#eee";
-		context.strokeStyle = "#333";
-		context.beginPath();
-		context.rect(x0, y0, x1 - x0, y1 - y0);
-		context.fill();
-		context.stroke();
-
-		// hz = bin index * 1/2 * sampleRate / totalBins ;
-		// index = 2 * hz * totalBins / sampleRate
 
 		context.beginPath();
 		var last = x0;
@@ -134,16 +245,14 @@ function visualize(analyser, draw) {
 		context.stroke();
 	}
 
-	function logfrequency(context, data, x0, y0, x1, y1) {
+	function draw_logfrequency(context, data, x0, y0, x1, y1) {
 		var minimumFrequency = 110 / 8;
 		var maximumFrequency = 0.5 * sampleRate;
+		var divider = log2(maximumFrequency / minimumFrequency);
 
 		function position(hz) {
-			var p = log2(hz / minimumFrequency) / log2(maximumFrequency / minimumFrequency);
+			var p = log2(hz / minimumFrequency) / divider;
 			return p <= 0 ? 0 : p;
-			//return minimumFrequency * pow(maximumFrequency / minimumFrequency, exponent);
-			//return log2(hz / maximumFrequency) / log2(maximumFrequency);
-			//return minimumFrequency * Math.pow(maximumFrequency / minimumFrequency, exponent);
 		}
 
 		function binToHz(bin) {
@@ -159,9 +268,6 @@ function visualize(analyser, draw) {
 		context.rect(x0, y0, x1 - x0, y1 - y0);
 		context.fill();
 		context.stroke();
-
-		// hz = bin index * 1/2 * sampleRate / totalBins ;
-		// index = 2 * hz * totalBins / sampleRate
 
 		context.beginPath();
 		var last = x0;
@@ -242,15 +348,25 @@ function visualize(analyser, draw) {
 
 			var y0 = screen.y * 0.5;
 			context.font = "10px monospace";
-			oscilloscope(context, sampleData, 0, screen.y * 0.5, screen.x * 0.5, screen.y);
-			logfrequency(context, frequencyData, screen.x * 0.5, screen.y * 0.5, screen.x, screen.y * 0.75);
-			frequency(context, frequencyData, screen.x * 0.5, screen.y * 0.75, screen.x, screen.y);
+			draw_recording(context, summaryMin, summaryMax, 0, screen.y * 0.4, screen.x, screen.y * 0.5);
+			draw_preview(context, 0, screen.y * 0.5, screen.x * 0.5, screen.y * 0.75)
+			draw_oscilloscope(context, sampleData, 0, screen.y * 0.75, screen.x * 0.5, screen.y);
+			draw_logfrequency(context, frequencyData, screen.x * 0.5, screen.y * 0.5, screen.x, screen.y * 0.75);
+			draw_frequency(context, frequencyData, screen.x * 0.5, screen.y * 0.75, screen.x, screen.y);
 
 			context.restore();
 		}
 
 		if (draw) {
-			draw(context, screen, deltaTime);
+			context.save();
+			try {
+				context.translate(0, HEADER_SIZE);
+				var size = screen.clone();
+				size.y -= HEADER_SIZE - screen.y * 0.5;
+				draw(context, size, deltaTime);
+			} finally {
+				context.restore();
+			}
 		}
 
 		mouse.released = false;

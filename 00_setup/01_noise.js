@@ -2,10 +2,10 @@
 
 // setup controls
 var control = {
-	volume: 0.1
+	master: 0.1
 };
 var gui = new dat.GUI();
-gui.add(control, "volume", 0, 1);
+gui.add(control, "master", 0, 1);
 
 // create a context for wiring up audio nodes
 var audioContext = new AudioContext();
@@ -22,17 +22,20 @@ node.onaudioprocess = function(event) {
 	var data = event.outputBuffer.getChannelData(0);
 	for (var sample = 0; sample < data.length; sample++) {
 		data[sample] = random() * 2.0 - 1.0;
-		data[sample] *= control.volume;
+		data[sample] *= control.master;
 	}
+	record(data);
 };
 
 // create an analyser for visualizing what is going on
 var analyser = audioContext.createAnalyser();
-analyser.fftSize = 1024;
+analyser.fftSize = 512;
 
 // connect this to analyser
 node.connect(analyser);
 analyser.connect(audioContext.destination);
 
 // start visualization
-visualize(analyser, function(context, screenSize, deltaTime) {});
+visualize(analyser, function(context, screenSize, deltaTime) {
+	context.font = "40px monospace";
+});
