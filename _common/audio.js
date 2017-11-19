@@ -16,6 +16,8 @@ function timeToPhase(time, hz) {
 	return time * hz * 2 * PI;
 }
 
+// basic envelopes
+
 function impulse(time, k) {
 	var h = k * time;
 	return h * exp(1.0 - h)
@@ -36,4 +38,28 @@ function envelope(time, attack, release) {
 	if (time < attack + release)
 		return 1 - (time - attack) / release;
 	return 0;
+}
+
+// basic oscillators
+
+function sin(phase) {
+	return Math.cos(phase);
+}
+
+function saw(phase) {
+	return 2 * (phase / TAU - ((phase / TAU + 0.5) | 0));
+}
+
+function square(phase, A) {
+	A = A || 0.5;
+	var s = Math.sin(phase);
+	return s > A ? 1.0 : s < A ? -1.0 : A;
+}
+
+function triangle(phase) {
+	return Math.abs(4 * ((phase / TAU - 0.25) % 1) - 2) - 1;
+}
+
+function noise(phase) {
+	return Math.random() * 2 - 1;
 }

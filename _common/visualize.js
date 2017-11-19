@@ -52,9 +52,12 @@ function visualize(analyser, draw) {
 		for (var i = 0; i < data.length; i++) {
 			var value = data[i];
 
-			recording[recordingHead] = value;
+			if (value < -1) value = -1;
+			if (value > 1) value = 1;
 			if (value < minimum) minimum = value;
 			if (value > maximum) maximum = value;
+
+			recording[recordingHead] = value;
 
 			if ((recordingHead & summaryHeadMask) == 0) {
 				var summaryHead = recordingHead >> summaryBlockShift;

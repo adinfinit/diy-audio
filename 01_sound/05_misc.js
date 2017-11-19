@@ -58,7 +58,6 @@ var phase = 0;
 var time = 0;
 
 function reset() {
-	phase = 0;
 	time = 0;
 }
 
@@ -76,6 +75,8 @@ keyboard(function on(key, freq) {
 	}
 }, function off(key, freq) {})
 
+var lastSample = 0;
+
 function process(data, event, sampleRate) {
 	var secondsPerSample = 1.0 / sampleRate;
 
@@ -89,7 +90,8 @@ function process(data, event, sampleRate) {
 	for (var sample = 0; sample < data.length; sample++) {
 		var shape = envelope(time, attack, release);
 		data[sample] = osc(phase) * gain * shape;
-		phase += advance;
+
+		phase += timeToPhase(1.0 / sampleRate, control.frequency);
 		time += secondsPerSample;
 	}
 };
