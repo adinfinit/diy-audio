@@ -3,7 +3,14 @@ function defaultsetup(process, draw) {
 	var node = audioContext.createScriptProcessor(1024, 0, 1);
 
 	console.log(audioContext.sampleRate);
+
+	var skip = 8;
+
 	node.onaudioprocess = function(event) {
+		if (skip > 0) {
+			skip--;
+			return;
+		}
 		var data = event.outputBuffer.getChannelData(0);
 		process(data, event, audioContext.sampleRate);
 		record(data);

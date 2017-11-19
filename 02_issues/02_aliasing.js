@@ -23,14 +23,14 @@ var lastFrequency = 0;
 function process(data, event, sampleRate) {
 	var secondsPerSample = 1.0 / sampleRate;
 	var gain = decibelsToGain(control.decibel);
-	var frequency = control.frequency * Math.pow(2, control.scale);
-	lastFrequency = frequency;
-	var advance = timeToPhase(1.0 / sampleRate, frequency);
 
 	for (var sample = 0; sample < data.length; sample++) {
 		data[sample] = sin(phase) * gain;
-		phase += advance;
+		var frequency = control.frequency * Math.pow(2, control.scale);
+		phase += timeToPhase(1.0 / sampleRate, frequency);
 	}
+
+	lastFrequency = frequency;
 };
 
 function draw(context, screenSize, deltaTime) {

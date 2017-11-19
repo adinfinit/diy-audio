@@ -15,7 +15,6 @@ function process(data, event, sampleRate) {
 	var secondsPerSample = 1.0 / sampleRate;
 
 	var gain = decibelsToGain(control.decibel);
-	var multiplier = control.multiplier;
 	var frequency = control.frequency;
 	var advance = timeToPhase(1.0 / sampleRate, frequency);
 
