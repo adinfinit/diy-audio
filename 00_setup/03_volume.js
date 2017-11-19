@@ -7,19 +7,19 @@ var control = {
 var gui = new dat.GUI();
 gui.add(control, "decibel", -40, 0);
 
-
-function DecibelsToGain(decibel) {
+// available in audio.js
+function decibelsToGain(decibel) {
 	return pow(2.0, decibel / 6.0);
 }
 
-function GainToDecibels(gain) {
+function gainToDecibels(gain) {
 	return 6 * log2(gain);
 }
 
 var phase = 0;
 
 function process(data, event) {
-	var gain = DecibelsToGain(control.decibel);
+	var gain = decibelsToGain(control.decibel);
 	for (var sample = 0; sample < data.length; sample++) {
 		data[sample] = random() * 2 - 1;
 		data[sample] *= gain;
@@ -30,7 +30,7 @@ function process(data, event) {
 
 function draw(context, screenSize, deltaTime) {
 	context.font = "30px monospace";
-	var gain = DecibelsToGain(control.decibel);
+	var gain = decibelsToGain(control.decibel);
 	context.fillText("gain " + gain.toFixed(3), 50, 50);
 }
 

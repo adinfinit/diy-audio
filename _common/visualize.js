@@ -27,7 +27,7 @@ function visualize(analyser, draw) {
 
 	// RECORDER
 	var recordingSize = sampleRate * RECORDING_SECONDS;
-	var summaryBlockShift = 10;
+	var summaryBlockShift = 8;
 	var summaryHeadMask = (1 << summaryBlockShift) - 1;
 	var recording = new Float32Array(recordingSize);
 	var recordingHead = sampleRate / 2;
