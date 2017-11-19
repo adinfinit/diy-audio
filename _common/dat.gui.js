@@ -3146,7 +3146,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    GUI.toggleHide();
 	  }
 	};
-	_dom2.default.bind(window, 'keydown', GUI._keydownHandler, false);
+	// _dom2.default.bind(window, 'keydown', GUI._keydownHandler, false);
 
 	_common2.default.extend(GUI.prototype,
 
