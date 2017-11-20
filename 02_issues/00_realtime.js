@@ -11,7 +11,7 @@ var osc = sin;
 var gui = new dat.GUI();
 gui.add(control, "decibel", -40, 0);
 gui.add(control, "frequency", 10, 880).listen();
-gui.add(control, "count", 0, 500).step(1);
+gui.add(control, "count", 0, 1000).step(1);
 
 var phase = 0;
 keyboard(function on(key, freq) {
