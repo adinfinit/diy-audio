@@ -7,7 +7,6 @@ var control = {
 var gui = new dat.GUI();
 gui.add(control, "decibel", -40, 0);
 
-
 function noteFrequency(tonic, index) {
 	return tonic * Math.pow(2, index / 12);
 }
@@ -24,6 +23,7 @@ class Note {
 
 	process() {
 		var frequency = this.frequency + 2 * sin(this.phase * 0.03);
+		// this.frequency *= pow(2, 0.0001);
 		this.phase += timeToPhase(1.0 / this.sampleRate, frequency);
 
 		this.time += 1 / this.sampleRate;
@@ -39,7 +39,6 @@ class Note {
 // 0  1  2  3  4  5  6  7  8  9  10 11
 // 12 13 14 15 16 17 18 19 20 21 22 23
 // A  A# B  C  C# D  D# E  F  F# G  G#
-var Cmaj = [3, 5, 7, 8, 10, 12, 14, 15];
 
 class Music {
 	constructor(tonic, sampleRate) {

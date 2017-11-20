@@ -16,6 +16,10 @@ function timeToPhase(time, hz) {
 	return time * hz * 2 * PI;
 }
 
+function noteFrequency(tonic, index) {
+	return tonic * Math.pow(2, index / 12);
+}
+
 // basic envelopes
 
 function impulse(time, k) {
