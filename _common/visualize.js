@@ -52,8 +52,6 @@ function visualize(analyser, draw) {
 		for (var i = 0; i < data.length; i++) {
 			var value = data[i];
 
-			if (value < -1) value = -1;
-			if (value > 1) value = 1;
 			if (value < minimum) minimum = value;
 			if (value > maximum) maximum = value;
 

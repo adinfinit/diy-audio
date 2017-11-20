@@ -13,6 +13,15 @@ function defaultsetup(process, draw) {
 		}
 		var data = event.outputBuffer.getChannelData(0);
 		process(data, event, audioContext.sampleRate);
+
+		for (var i = 0; i < data.length; i++) {
+			var sample = data[i];
+			if (!Number.isFinite(sample)) sample = 0;
+			if (sample > 1) sample = 1;
+			if (sample < -1) sample = -1;
+			data[i] = sample;
+		}
+
 		record(data);
 	};
 

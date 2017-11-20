@@ -16,7 +16,7 @@ var control = {
 
 var gui = new dat.GUI();
 gui.add(control, "volume", 0, 1);
-gui.add(control, "release", 0, 5);
+gui.add(control, "release", 0, 5).step(0.01).listen();
 gui.add(control, "synth", ["sin", "saw", "noise"]);
 gui.add(control, "filtered");
 gui.add(control, "randomize");

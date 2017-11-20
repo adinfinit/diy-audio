@@ -28,7 +28,7 @@ class Tone {
 		var frequency = this.frequency +
 			2 * sin(this.phase * 0.03);
 		this.phase += timeToPhase(1.0 / this.sampleRate, frequency);
-		return sin(this.phase);
+		return saw(this.phase);
 	}
 }
 
@@ -45,10 +45,17 @@ class Delay {
 	}
 
 	bindKeyboard() {
-		var delay = this;
+		var filter = this;
 		keyboard(function on(key, freq) {
-			if (key == "2") delay.enabled = !delay.enabled;
+			if (key == "2") filter.enabled = !filter.enabled;
 		}, function off(key, freq) {})
+	}
+	createGui(gui) {
+		var folder = gui.addFolder("delay");
+		folder.closed = false;
+		folder.add(this, "enabled").listen();
+		folder.add(this, "ratio", 0, 1).step(0.01).listen();
+		folder.add(this, "delay", 1, 16 << 10).step(1).listen();
 	}
 
 	process(sample) {
@@ -75,12 +82,7 @@ tone.bindKeyboard();
 
 var delay = new Delay(8 << 10, 16 << 10);
 delay.bindKeyboard();
-
-var delayFolder = gui.addFolder("delay");
-delayFolder.closed = false;
-delayFolder.add(delay, "enabled").listen();
-delayFolder.add(delay, "ratio", 0, 1).step(0.01).listen();
-delayFolder.add(delay, "delay", 1, 16 << 10).step(1).listen();
+delay.createGui(gui);
 
 var gain = 0;
 
