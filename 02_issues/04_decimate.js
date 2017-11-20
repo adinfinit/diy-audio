@@ -22,6 +22,10 @@ keyboard(function on(key, freq) {
 var lastFrequency = 0;
 var lastSample = 0;
 
+function decimate(sample, levels) {
+	return Math.round(sample * levels * 0.5) * 2 / levels;
+}
+
 function process(data, event, sampleRate) {
 	var secondsPerSample = 1.0 / sampleRate;
 	var gain = decibelsToGain(control.decibel);
@@ -30,10 +34,7 @@ function process(data, event, sampleRate) {
 	var advance = timeToPhase(1.0 / sampleRate, frequency);
 
 	for (var sample = 0; sample < data.length; sample++) {
-		var value = sin(phase);
-		var decimatedValue = Math.round(value * control.decimate * 0.5) * 2 / control.decimate;
-
-		data[sample] = decimatedValue * gain;
+		data[sample] = decimate(sin(phase), control.decimate) * gain;
 		phase += advance;
 	}
 
@@ -43,7 +44,7 @@ function process(data, event, sampleRate) {
 function draw(context, screenSize, deltaTime) {
 	context.font = "30px monospace";
 	var gain = decibelsToGain(control.decibel);
-	context.fillText("freq   " + lastFrequency.toFixed(3) + g "hz", 50, 50);
+	context.fillText("freq   " + lastFrequency.toFixed(3) + "hz", 50, 50);
 	context.fillText("phase  " + phase.toFixed(3), 50, 100);
 }
 

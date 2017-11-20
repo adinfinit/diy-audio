@@ -20,6 +20,11 @@ function noteFrequency(tonic, index) {
 	return tonic * Math.pow(2, index / 12);
 }
 
+function decimate(sample, levels) {
+	return Math.round(sample * levels * 0.5) * 2 / levels;
+}
+
+
 // basic envelopes
 
 function impulse(time, k) {

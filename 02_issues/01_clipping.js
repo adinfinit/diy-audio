@@ -35,7 +35,7 @@ function draw(context, screenSize, deltaTime) {
 	context.font = "30px monospace";
 	var gain = decibelsToGain(control.decibel) * control.frequency;
 	context.fillText("gain   " + gain.toFixed(3), 50, 50);
-	context.fillText("phase  " + phase.toFixed(3), 50, 50);
+	context.fillText("phase  " + phase.toFixed(3), 50, 100);
 }
 
 defaultsetup(process, draw);
