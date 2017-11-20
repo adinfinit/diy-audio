@@ -1,8 +1,5 @@
 // https://github.com/mrahtz/javascript-karplus-strong
-// karplus strong
 // https://stackoverflow.com/questions/13153078/web-audio-karplus-strong-string-synthesis
-
-// https://creatingsound.com/2014/02/dsp-audio-programming-series-part-2/
 
 "use strict";
 
@@ -20,7 +17,6 @@ class Tone {
 		this.head = 0;
 		this.sampleRate = sampleRate;
 		this.impulse = 0.01;
-		this.time = 0;
 
 		this.reset();
 	}
@@ -47,15 +43,19 @@ class Tone {
 		this.imp = this.impulse * this.sampleRate;
 		var n = Math.ceil(this.sampleRate / this.frequency);
 		this.buffer = new Float32Array(n);
+		for (var i = 0; i < this.buffer.length; i++) {
+			this.buffer[i] = randomRange(-1, 1);
+		}
 		this.head = 0;
 	}
 
 	process() {
-		var xn = this.imp-- >= 0 ? randomRange(-1, 1) : 0;
-
 		var head = this.head;
 		var next = this.head + 1;
 		if (next > this.buffer.length) next = 0;
+
+		var xn = 0;
+		var xn = this.imp-- > 0 ? noise() : 0;
 
 		var sample = xn +
 			this.buffer[head] * 0.5 +
@@ -64,7 +64,6 @@ class Tone {
 		this.buffer[head] = sample;
 		this.head = next;
 
-		this.time += 1 / this.sampleRate;
 		return sample;
 	}
 }
