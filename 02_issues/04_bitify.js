@@ -3,13 +3,13 @@ var control = {
 	decibel: -5,
 	frequency: 440,
 
-	decimate: 8
+	bitify: 8
 };
 
 var gui = new dat.GUI();
 gui.add(control, "decibel", -40, 0);
 gui.add(control, "frequency", 10, 880).listen();
-gui.add(control, "decimate", 2, 256).step(1);
+gui.add(control, "bitify", 2, 256).step(1);
 
 var phase = 0;
 
@@ -22,7 +22,7 @@ keyboard(function on(key, freq) {
 var lastFrequency = 0;
 var lastSample = 0;
 
-function decimate(sample, levels) {
+function bitify(sample, levels) {
 	return Math.round(sample * levels * 0.5) * 2 / levels;
 }
 
@@ -34,7 +34,7 @@ function process(data, event, sampleRate) {
 	var advance = timeToPhase(1.0 / sampleRate, frequency);
 
 	for (var sample = 0; sample < data.length; sample++) {
-		data[sample] = decimate(sin(phase), control.decimate) * gain;
+		data[sample] = bitify(sin(phase), control.bitify) * gain;
 		phase += advance;
 	}
 
