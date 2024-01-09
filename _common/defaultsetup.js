@@ -1,7 +1,11 @@
+let SampleRate = 0;
+let MainAudioContext = null;
+
 function defaultsetup(process, draw) {
 	var audioContext = new AudioContext();
 	var node = audioContext.createScriptProcessor(1024, 0, 1);
-
+	SampleRate = audioContext.sampleRate;
+	MainAudioContext = audioContext;
 	console.log(audioContext.sampleRate);
 
 	var skip = 8;
