@@ -31,7 +31,7 @@ function defaultsetup(process, draw) {
 
 	// create an analyser for visualizing what is going on
 	var analyser = audioContext.createAnalyser();
-	analyser.fftSize = 512;
+	analyser.fftSize = 2048;
 
 	// connect this to analyser
 	node.connect(analyser);

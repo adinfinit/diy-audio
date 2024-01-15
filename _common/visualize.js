@@ -1,8 +1,8 @@
 var record = function() {};
 
 function visualize(analyser, draw) {
-	const HEADER_SIZE = 30;
-	const RECORDING_SECONDS = 4;
+	const HEADER_SIZE = 40;
+	const RECORDING_SECONDS = 0.3;
 
 	var canvas = document.getElementById("canvas");
 	var context = canvas.getContext("2d");
@@ -203,12 +203,14 @@ function visualize(analyser, draw) {
 	function draw_frequency(context, data, x0, y0, x1, y1) {
 		frame(x0, y0, x1, y1);
 
-		var scaleX = (x1 - x0) / data.length;
+		let n = data.length/4;
+
+		var scaleX = (x1 - x0) / n;
 		var scaleY = (y1 - y0) / 256.0;
 
 		context.beginPath();
 		var last = x0;
-		for (var i = 0; i < data.length; i++) {
+		for (var i = 0; i < n; i++) {
 			var height = data[i] * scaleY;
 			var x = (x0 + i * scaleX) | 0;
 			context.fillStyle = rgb(data[i], 50, 50);
@@ -248,7 +250,7 @@ function visualize(analyser, draw) {
 
 	function draw_logfrequency(context, data, x0, y0, x1, y1) {
 		var minimumFrequency = 110 / 8;
-		var maximumFrequency = 0.5 * sampleRate;
+		var maximumFrequency = 0.25 * sampleRate;
 		var divider = log2(maximumFrequency / minimumFrequency);
 
 		function position(hz) {
