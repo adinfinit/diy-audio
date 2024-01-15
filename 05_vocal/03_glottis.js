@@ -3,14 +3,6 @@
 // setup controls
 var control = {
 	decibel: -5,
-	frequency: 220,
-
-	vibrato: 5,
-	vibratoDepth: 4,
-
-	skew: 0.6,
-	close: 0.5,
-	noise: 0.01,
 };
 
 function approach(before, target, maxStep, epsilon) {
