@@ -24,6 +24,16 @@ function cosSkew(x, skew) {
 	return Math.cos(x + Math.cos(x + Math.cos(x + Math.cos(x)*skew*skew*skew)*skew*skew)*skew);
 }
 
+function sinstack(x, n) {
+	let out = 0.0;
+	let power = 1.0;
+	for(let i = 1; i <= n; i++){
+		out += power * Math.sin(i * x)
+		power *= 0.82;
+	}
+	return out * 0.6;
+}
+
 class Glottis {
 	constructor(sampleRate){
 		this.sampleRate = sampleRate;
@@ -31,14 +41,14 @@ class Glottis {
 		this._phase = 0.0;
 		this._vibratoPhase = 0.0;
 
-		this._frequency = 440.0;
+		this._frequency = 261.1;
 		this._skew  = 0.5;
 		this._close = 0.5;
 
 		this.frequency = this._frequency;
 		this.skew      = this._skew;
 		this.close     = this._close;
-		this.breath     = 0.01;
+		this.breath     = 0.2;
 
 		this.vibratoFrequency = 5.0; // in Hz
 		this.vibratoDepth = 4.0; // range in Hz
@@ -101,10 +111,13 @@ class Glottis {
 			phase += (Math.random() - 0.5) * 0.005 * frequency/880;
 
 			// calculate close quotient phase adjustment
-			let closeQuotient = Math.cos(-phase - (19.0/32.0)*PI) * close;
+			let closeQuotient = Math.cos(-phase - (19.0/32.0)*PI + PI/4) * close;
 
 			// calculate the voice
-			let voice = -cosSkew(-phase + closeQuotient, skew);
+			//let voice = -cosSkew(-phase + closeQuotient, skew);
+			let voice = sinstack(phase, 32);
+			//let voice = sinstack(phase + closeQuotient, 30);
+			//let voice = triangle(phase + closeQuotient) * 10;
 			// caculate breathiness
 			let breathiness = breath * Math.random() * Math.random();
 
@@ -231,9 +244,13 @@ function process(data, event) {
 
 	bank.set(
 		SampleRate,
-		[800, 1150, 2900, 3900, 4950, 2*3900],
-		[80, 90, 120, 130, 140, 150],
-		[0, -6, -32, -20, -50, -15],
+		//[800, 1150, 2900, 3900, 4950, 2*3900],
+		//[80, 90, 120, 130, 140, 150],
+		//[0, -6, -32, -20, -50, -15],
+
+		[800, 1200, 2500, 2700, 2900, 2*2900],
+		[80, 120, 250, 270, 290, 150],
+		[0, -4, -8, -12, -18, -16],
 
 		//[350,2000,2800,3600,4950],
 		//[60,100,120,150,200],
